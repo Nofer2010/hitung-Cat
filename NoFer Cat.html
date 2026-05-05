@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NO FER Kalkulator Cat V2</title>
+    <style>
+        body { font-family: sans-serif; background: #2c3e50; padding: 20px; color: #333; }
+        .box { background: white; padding: 20px; border-radius: 15px; max-width: 450px; margin: auto; }
+        h2 { text-align: center; color: #2980b9; margin-bottom: 20px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        .field { flex: 1; }
+        label { font-size: 12px; font-weight: bold; color: #7f8c8d; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #2980b9; color: white; border: none; border-radius: 8px; margin-top: 20px; font-weight: bold; font-size: 16px; }
+        #hasil { margin-top: 20px; padding: 15px; background: #ecf0f1; border-left: 5px solid #27ae60; border-radius: 5px; display: none; }
+        .info { font-size: 11px; color: #95a5a6; margin-top: 5px; }
+        .section-label { margin-top: 15px; display: block; border-top: 1px solid #eee; padding-top: 10px; font-weight: bold; color: #34495e; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>🎨 NO FER Penghitung Cat</h2>
+    
+    <div class="input-group">
+        <div class="field">
+            <label>Panjang (m)</label>
+            <input type="number" id="p" placeholder="0">
+        </div>
+        <div class="field">
+            <label>Lebar (m)</label>
+            <input type="number" id="l" placeholder="0">
+        </div>
+        <div class="field">
+            <label>Tinggi (m)</label>
+            <input type="number" id="t" placeholder="0">
+        </div>
+    </div>
+
+    <label class="section-label">Pilih Jenis Material:</label>
+    <select id="jenis">
+        <option value="12">Cat Tembok Standar (12 m²/L)</option>
+        <option value="10">Cat Premium/Gloss (10 m²/L)</option>
+        <option value="10">Cat Sealer/Dasar (10 m²/L)</option>
+        <option value="8">Cat Lantai / Epoxy (8 m²/L)</option>
+        <option value="2">Waterproofing (2 m²/kg)</option>
+    </select>
+
+    <label style="margin-top:10px; display:block;">Lapis Pengecatan:</label>
+    <input type="number" id="lapis" value="2">
+    
+    <p class="info">*Cat Lantai & Waterproofing hanya menghitung luas alas (P x L).</p>
+
+    <button onclick="hitungPro()">Hitung Sekarang</button>
+
+    <div id="hasil"></div>
+</div>
+
+<script>
+    function hitungPro() {
+        let p = parseFloat(document.getElementById('p').value) || 0;
+        let l = parseFloat(document.getElementById('l').value) || 0;
+        let t = parseFloat(document.getElementById('t').value) || 0;
+        let dayaSebar = parseFloat(document.getElementById('jenis').value);
+        let jenisTeks = document.getElementById('jenis').options[document.getElementById('jenis').selectedIndex].text;
+        let lapis = parseInt(document.getElementById('lapis').value) || 1;
+
+        if (p > 0 && l > 0) {
+            let luasBidang = 0;
+            let labelLuas = "";
+            let unit = (jenisTeks.includes("Waterproofing")) ? "kg" : "Liter";
+
+            // Logika pemisah: Lantai/Waterproofing vs Dinding
+            if (jenisTeks.includes("Lantai") || jenisTeks.includes("Waterproofing")) {
+                luasBidang = p * l;
+                labelLuas = "Luas Bidang Dasar";
+            } else {
+                if (t <= 0) { alert("Isi Tinggi untuk cat tembok!"); return; }
+                luasBidang = (2 * (p + l) * t) * 0.9;
+                labelLuas = "Luas Dinding (Bersih)";
+            }
+            
+            let kebutuhanTotal = (luasBidang * lapis) / dayaSebar;
+
+            let res = document.getElementById('hasil');
+            res.style.display = "block";
+            res.innerHTML = `
+                <b>Estimasi Hasil (NO FER):</b><br>
+                ${labelLuas}: ${luasBidang.toFixed(1)} m²<br>
+                Total Kebutuhan: <b>${kebutuhanTotal.toFixed(2)} ${unit}</b><br><br>
+                <b>Beli Kemasan:</b><br>
+                🛒 ${Math.ceil(kebutuhanTotal / 2.5)} Galon (2.5 ${unit})<br>
+                Atau<br>
+                🛒 ${Math.ceil(kebutuhanTotal / 20)} Pail (20 ${unit})
+            `;
+        } else {
+            alert("Isi minimal Panjang dan Lebar dulu ya Bang!");
+        }
+    }
+</script>
+
+</body>
+</html>
